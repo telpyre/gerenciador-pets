@@ -27,6 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Definições de Email
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'lucas.otuyama@gmail.com'
+EMAIL_HOST_PASSWORD = 'rhji mfie wcss vtqm'
+DEFAULT_FROM_EMAIL = 'no-reply@petshopmanager.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 
 # Application definition
 
