@@ -26,7 +26,7 @@ def enviar_email_ativacao(request, usuario):
     from_email = 'no-reply@petshopmanager.com'
     recipient_list = [usuario.email]
     message = render_to_string('usuarios/email_ativacao.html', {
-        'user': usuario,
+        'usuario': usuario,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(usuario.id)),
         'token': default_token_generator.make_token(usuario),
@@ -63,20 +63,24 @@ def reenviar_email_ativacao(request, usuario_id):
     return redirect('dashboard')
 
 
-def enviar_email_tutor(request, usuario, pet):
+def enviar_email_tutor(request, animal_id):
+    pet = Animal.objects.get(id=animal_id)
+    usuario = Usuario.objects.get(id=pet.usuario_id)
     current_site = get_current_site(request)
     mail_subject = 'Seu pet está pronto para ser buscado'
     from_email = 'no-reply@petshopmanager.com'
     recipient_list = [usuario.email]
     message = render_to_string('pets/email_buscar_pet.html', {
         'pet': pet,
-        'user': usuario,
+        'usuario': usuario,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(usuario.id)),
         'token': default_token_generator.make_token(usuario),
     })
     send_mail(mail_subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
     usuario.save()
+    messages.success(request, f'{usuario.nome} foi notificado com sucesso')
+    return redirect('listar_pets')
 
 
 # ===/views para ADMIN/===
@@ -144,6 +148,7 @@ def excluir_usuario(request, usuario_id):
 
 @admin_required_custom
 def pet_status_recebido(request, animal_id):
+    print(f'animal_id: {animal_id}')
     try:
         pet = get_object_or_404(Animal, id=animal_id)
         if not pet.status:
@@ -190,7 +195,7 @@ def listar_pets(request):
                            )
 
     if status:
-        esta_conosco = True if status == 'conosco' else False
+        esta_conosco = True if status == 'true' else False
         pets = pets.filter(status=esta_conosco)
 
     if idade:
@@ -310,7 +315,7 @@ def atualizar_dados(request):
                 else:
                     form.add_error(None, 'As novas senhas não coincidem')
             else:
-                messages.error('old_password', 'A senha antiga está incorreta')
+                form.add_error('old_password', 'A senha antiga está incorreta')
     else:
         form = AtualizarDadosForm()
     return render(request, 'usuarios/editar_info.html', {'form': form, 'usuario': usuario})
@@ -330,8 +335,8 @@ def adicionar_pet(request):
             pet = form.save(commit=False)
             pet.usuario_id = request.session.get('usuario_id')
 
-            if 'foto' in request.FILES:
-                foto = request.FILES['foto']
+            if 'foto_pet' in request.FILES:
+                foto = request.FILES['foto_pet']
                 img = Image.open(io.BytesIO(foto.read()))
                 img.thumbnail((300, 300))
                 buffered = io.BytesIO()
@@ -357,8 +362,8 @@ def editar_pet(request, animal_id):
             pet = form.save(commit=False)
             pet.usuario_id = request.session.get('usuario_id')
 
-            if 'foto' in request.FILES:
-                imagem = Image.open(request.FILES['foto'])
+            if 'foto_pet' in request.FILES:
+                imagem = Image.open(request.FILES['foto_pet'])
                 imagem = imagem.resize((300, 300), Image.LANCZOS)
                 buffered = io.BytesIO()
                 imagem.save(buffered, format='PNG')

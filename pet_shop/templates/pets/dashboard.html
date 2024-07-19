@@ -26,9 +26,9 @@ Dashboard
 		<div class="card mb-4">
 			{% if pet.foto_pet %}
 			<img src="data:image/png;base64, {{ pet.foto_pet }}" class="card-img-top"
-			     alt="foto de {{ pet.nome }}">
+			     alt="foto de {{ pet.especie }}">
 			{% else %}
-			<img src="https://imgur.com/PnaWIrG" class="card-img-top"
+			<img src="https://i.imgur.com/PnaWIrG.png" class="card-img-top"
 			     alt="foto de genérica de uma pata">
 			{% endif %}
 			<div class="card-body">
@@ -54,10 +54,10 @@ Dashboard
 		<div class="card mb-4">
 			{% if pet.foto_pet %}
 			<img src="data:image/png;base64, {{ pet.foto_pet }}" class="card-img-top"
-			     alt="foto de {{ pet.nome }}">
+			     alt="foto de um {{ pet.especie }}">
 			{% else %}
-			<img src="https://imgur.com/PnaWIrG" class="card-img-top"
-			     alt="foto de genérica de uma pata">
+			<img src="https://i.imgur.com/PnaWIrG.png" class="card-img-top"
+			     alt="foto genérica de uma pata">
 			{% endif %}
 			<div class="card-body">
 				<h5 class="card-title">{{ pet.nome }}</h5>
@@ -70,30 +70,31 @@ Dashboard
 			</div>
 		</div>
 	</div>
-	{% endfor %}
-</div>
-{% endif %}
-<!-- modal -->
-<div class="modal fade" id="modal{{ pet.id }}" tabindex="-1" role="dialog"
-     aria-labelledby="modalLabel{{ pet.id }}" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
-				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<p>Espécie: {{ pet.especie }}</p>
-				{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
-				<p>{{ pet.idade }} anos</p>
-				<p>Cor: {{ pet.cor }}</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+	<!-- modal -->
+	<div class="modal fade" id="modal{{ pet.id }}" tabindex="-1" role="dialog"
+	     aria-labelledby="modalLabel{{ pet.id }}" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>Espécie: {{ pet.especie }}</p>
+					{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
+					<p>{{ pet.idade }} anos</p>
+					<p>Cor: {{ pet.cor }}</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+				</div>
 			</div>
 		</div>
 	</div>
+	{% endfor %}
 </div>
+{% endif %}
+
 {% endblock %}

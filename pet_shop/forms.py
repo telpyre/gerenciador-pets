@@ -35,7 +35,7 @@ class UsuarioForm(BootstrapModelForm):
 
 class PetForm(BootstrapModelForm):
     foto_pet = forms.ImageField(required=False, widget=forms.FileInput(attrs={
-        'class': 'form-control',
+        'class': 'form-control-file',
         'accept': 'image/*'
     }))
 
@@ -93,7 +93,7 @@ class AtualizarDadosForm(forms.Form):
         confirm_password = cleaned_data.get('confirm_password')
 
         if confirm_password and new_password and confirm_password != new_password:
-            raise forms.ValidationError({'confirmar_password': 'As senhas não coincidem.'})
+            raise forms.ValidationError({'confirm_password': 'As senhas não coincidem.'})
 
         elif new_password and old_password and new_password == old_password:
             raise forms.ValidationError({'new_password': 'A nova senha não pode ser igual à antiga.'})
