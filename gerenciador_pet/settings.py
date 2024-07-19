@@ -26,6 +26,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# AUTHENTICATION
+AUTH_USER_MODEL = 'pet_shop.Usuario'
+LOGIN_URL = '/contatos/login/'
+LOGIN_REDIRECT_URL = '/contatos/dashboard/'
+
 # Definições de Email
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -83,7 +88,7 @@ WSGI_APPLICATION = 'gerenciador_pet.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        #  'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

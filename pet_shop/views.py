@@ -157,6 +157,7 @@ def pet_status_recebido(request, animal_id):
         messages.error(request, 'Pet não encontrado.')
     return redirect('listar_pets')
 
+
 @admin_required_custom
 def pet_status_devolvido(request, animal_id):
     try:
@@ -265,9 +266,12 @@ def cadastrar_usuario(request):
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
+        print(f'form na view: {form}')
         if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
+            email = form.cleaned_data['email']
+            print(f'email na view: {email}')
+            password = form.cleaned_data['password']
+            print(f'password na view: {password}')
             try:
                 usuario = authenticate(request, username=email, password=password)
                 if usuario is not None:

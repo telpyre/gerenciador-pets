@@ -59,10 +59,12 @@ class LoginForm(forms.Form):
 
         if email and password:
             try:
-                usuario = authenticate(username=email, password=password)
                 print(f'email: {email}')
                 print(f'password: {password}')
-                print(f'Usuario: {usuario}')
+                usuario = authenticate(username=email, password=password)
+                print(f'usuario:{usuario}')
+                print(f'email: {email}')
+                print(f'password: {password}')
                 if usuario is None:
                     raise forms.ValidationError('Senha incorretaaa.')
             except Usuario.DoesNotExist:
