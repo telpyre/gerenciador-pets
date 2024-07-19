@@ -5,6 +5,18 @@ Email de ativação de conta
 {% endblock %}
 
 {% block content %}
-
-
+<div class="header">
+    <h1 class="display-4">Ative sua conta</h1>
+</div>
+<div class="content">
+    <p>Olá {{ usuario.nome }}</p>
+    <p>Obrigado por se registrar. Clique no link para ativar sua conta:</p>
+    <p>
+        <a href="http://{{ domain }}{% url 'ativar_usuario' uidb64=uid token=token %}">Ativar</a>
+    </p>
+    <p>Se você não se registrou, ignore este email</p>
+</div>
+<div class="footer">
+    <p>&copy; 2024 <em>Pet Shop Manager</em>. Todos os direitos reservados.</p>
+</div>
 {% endblock %}

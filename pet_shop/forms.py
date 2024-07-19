@@ -12,16 +12,17 @@ class BootstrapModelForm(forms.ModelForm):
 
 
 class UsuarioForm(BootstrapModelForm):
+    foto_perfil = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'form-control',
+        'accept': 'image/*'
+    }))
+
     class Meta:
         model = Usuario
         fields = ['nome', 'idade', 'email', 'password', 'telefone', 'foto_perfil']
         widgets = {
             'password': forms.PasswordInput(),
             'telefone': forms.TextInput(attrs={'data-mask': '(00)00000-0000'}),
-            'foto_perfil': forms.ImageField(required=False, widget=forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/*'
-            }))
         }
 
     def save(self, commit=True):
@@ -58,9 +59,12 @@ class LoginForm(forms.Form):
 
         if email and password:
             try:
-                usuario = authenticate(email=email, password=password)
+                usuario = authenticate(username=email, password=password)
+                print(f'email: {email}')
+                print(f'password: {password}')
+                print(f'Usuario: {usuario}')
                 if usuario is None:
-                    raise forms.ValidationError('Senha incorreta.')
+                    raise forms.ValidationError('Senha incorretaaa.')
             except Usuario.DoesNotExist:
                 raise forms.ValidationError('Email não encontrado.')
 

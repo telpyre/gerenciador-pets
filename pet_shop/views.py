@@ -63,12 +63,13 @@ def reenviar_email_ativacao(request, usuario_id):
     return redirect('dashboard')
 
 
-def enviar_email_tutor(request, usuario):
+def enviar_email_tutor(request, usuario, pet):
     current_site = get_current_site(request)
     mail_subject = 'Seu pet está pronto para ser buscado'
     from_email = 'no-reply@petshopmanager.com'
     recipient_list = [usuario.email]
     message = render_to_string('pets/email_buscar_pet.html', {
+        'pet': pet,
         'user': usuario,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(usuario.id)),
@@ -102,8 +103,7 @@ def listar_usuarios(request):
         except ValueError:
             pass  # Se a idade não for um número, ignorar esse filtro
 
-    usuarios = usuarios.filter(is_admin=False).annotate(
-        num_contatos=Count('contatos'))
+    usuarios = usuarios.filter(is_admin=False)
     return render(request, 'usuarios/listar_usuarios.html', {'usuarios': usuarios})
 
 
@@ -143,16 +143,31 @@ def excluir_usuario(request, usuario_id):
 
 
 @admin_required_custom
-def mudar_status_pet(request, animal_id):
+def pet_status_recebido(request, animal_id):
+    try:
+        pet = get_object_or_404(Animal, id=animal_id)
+        if not pet.status:
+            pet.status = True
+            pet.save()
+            messages.success(request, f'Pet \'{pet.nome}\' foi recebido!')
+            return redirect('listar_pets')
+        else:
+            messages.error(request, f'Pet \'{pet.nome}\' já está conosco.')
+    except Usuario.DoesNotExist:
+        messages.error(request, 'Pet não encontrado.')
+    return redirect('listar_pets')
+
+@admin_required_custom
+def pet_status_devolvido(request, animal_id):
     try:
         pet = get_object_or_404(Animal, id=animal_id)
         if pet.status:
             pet.status = False
+            pet.save()
             messages.success(request, f'Pet \'{pet.nome}\' foi devolvido ao dono.')
+            return redirect('listar_pets')
         else:
-            pet.status = True
-            messages.success(request, f'Pet \'{pet.nome}\' foi recebido por nós.')
-        pet.save()
+            messages.success(request, f'Pet \'{pet.nome}\' não está conosco.')
 
     except Usuario.DoesNotExist:
         messages.error(request, 'Pet não encontrado.')
@@ -174,8 +189,8 @@ def listar_pets(request):
                            )
 
     if status:
-        is_active = True if status == 'ativo' else False
-        pets = pets.filter(is_active=is_active)
+        esta_conosco = True if status == 'conosco' else False
+        pets = pets.filter(status=esta_conosco)
 
     if idade:
         try:
@@ -197,15 +212,17 @@ def listar_pets(request):
 @login_required_custom
 def dashboard(request):
     usuario_id = request.session.get('usuario_id')
-    usuario = Usuario.objects.defer('password').get(id=usuario_id)  # defer ignora o campo 'password'
+    usuario = Usuario.objects.defer('password').get(id=usuario_id)
 
     if usuario.is_admin:
+        pets = Animal.objects.all()
         total_usuarios = Usuario.objects.filter(is_admin=False).count()
         usuarios_ativos = Usuario.objects.filter(is_admin=False, is_active=True).count()
         usuarios_inativos = total_usuarios - usuarios_ativos
         ultimos_usuarios = Usuario.objects.filter(is_admin=False).order_by('-created_at')[:5]
 
         context = {
+            'pets': pets,
             'usuario': usuario,
             'total_usuarios': total_usuarios,
             'usuarios_ativos': usuarios_ativos,
@@ -238,10 +255,10 @@ def cadastrar_usuario(request):
             messages.success(request, 'Conta criada com sucesso! Verifique seu email para ativar a conta.')
             return redirect('login')
         else:
-            return render(request, 'usuario/cadastrar_usuario.html', {'form': form})
+            return render(request, 'usuarios/cadastrar_usuario.html', {'form': form})
     else:
         form = UsuarioForm()
-    return render(request, 'usuario/cadastrar_usuario.html', {'form': form})
+    return render(request, 'usuarios/cadastrar_usuario.html', {'form': form})
 
 
 @redirect_authenticated_user
@@ -264,7 +281,7 @@ def login(request):
                     messages.error(request, 'Email ou senha inválidos.')
             except Usuario.DoesNotExist:
                 if Usuario.objects.filter(email=email).exists():
-                    messages.error(request, 'Email ou senha inválidos.')
+                    messages.error(request, 'Email ou senha inválidos?.')
     else:
         form = LoginForm()
     return render(request, 'usuarios/login.html', {'form': form})

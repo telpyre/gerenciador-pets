@@ -5,11 +5,93 @@ Dashboard
 {% endblock %}
 
 {% block content %}
+<h1 class="display-4">Bem-vindo, {{ usuario.nome }}</h1>
+<div class="mb-3">
+	{% if usuario.is_admin %}
+	<a href="{% url 'listar_pets' %}" class="btn btn-primary mr-2">Listar Pets</a>
+	<a href="{% url 'listar_usuarios' %}" class="btn btn-primary mr-2">Listar Usuários</a>
+	{% else %}
+	<a href="{% url 'adicionar_pet' %}" class="btn btn-primary  mr-2">Adicionar Pet</a>
+	<a href="{% url 'atualizar_dados' %}" class="btn btn-primary mr-2">Editar seus dados</a>
+	{% endif %}
+	<a href="{% url 'logout' %}" class="btn btn-secondary btn-sm">Logout</a>
+</div>
+
 {% if usuario.is_admin %}
 
+<h3>Todos os Pets</h3>
+<div class="row">
+	{% for pet in pets %}
+	<div class="col-md-4">
+		<div class="card mb-4">
+			{% if pet.foto_pet %}
+			<img src="data:image/png;base64, {{ pet.foto_pet }}" class="card-img-top"
+			     alt="foto de {{ pet.nome }}">
+			{% else %}
+			<img src="https://imgur.com/PnaWIrG" class="card-img-top"
+			     alt="foto de genérica de uma pata">
+			{% endif %}
+			<div class="card-body">
+				<h5 class="card-title">{{ pet.nome }}</h5>
+				<p class="card-text">{{ pet.especie }}{% if pet.raca %}<br>{{ pet.raca }}{% endif %}</p>
+				<button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
+				        data-bs-target="#modal{{ pet.id }}">Ver mais
+				</button>
+				<a href="{% url 'editar_pet' pet.id %}" class="btn btn-secondary ">Editar</a>
+				<a href="{% url 'excluir_pet' pet.id %}" class="btn btn-danger ">Excluir</a>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% else %}
 
-
+<h3>Meus Pets</h3>
+<div class="row">
+	{% for pet in pets %}
+	<div class="col-md-4">
+		<div class="card mb-4">
+			{% if pet.foto_pet %}
+			<img src="data:image/png;base64, {{ pet.foto_pet }}" class="card-img-top"
+			     alt="foto de {{ pet.nome }}">
+			{% else %}
+			<img src="https://imgur.com/PnaWIrG" class="card-img-top"
+			     alt="foto de genérica de uma pata">
+			{% endif %}
+			<div class="card-body">
+				<h5 class="card-title">{{ pet.nome }}</h5>
+				<p class="card-text">{{ pet.especie }}{% if pet.raca %}<br>{{ pet.raca }}{% endif %}</p>
+				<button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
+				        data-bs-target="#modal{{ pet.id }}">Ver mais
+				</button>
+				<a href="{% url 'editar_pet' pet.id %}" class="btn btn-secondary ">Editar</a>
+				<a href="{% url 'excluir_pet' pet.id %}" class="btn btn-danger ">Excluir</a>
+			</div>
+		</div>
+	</div>
+</div>
 {% endif %}
+<!-- modal -->
+<div class="modal fade" id="modal{{ pet.id }}" tabindex="-1" role="dialog"
+     aria-labelledby="modalLabel{{ pet.id }}" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p>Espécie: {{ pet.especie }}</p>
+				{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
+				<p>{{ pet.idade }} anos</p>
+				<p>Cor: {{ pet.cor }}</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}

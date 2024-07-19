@@ -2,9 +2,20 @@
 
 {% block title %}
 Email de notificação para tutor
+
 {% endblock %}
 
 {% block content %}
-
-
+<div class="header">
+    <h1 class="display-4">Seu Pet está te esperando!</h1>
+</div>
+<div class="content">
+    <p>Olá {{ usuario.nome }}!</p>
+    <p>Seu pet {{ pet.nome }} está pronto para ser buscado. <br>
+        Lembre de trazer seu documento de identificação para a retirada do seu pet.</p>
+    <p>Agradecemos a preferência e esperamos poder cuidar de seu pet novamente no futuro!</p>
+</div>
+<div class="footer">
+    <p>&copy; 2024 <em>Pet Shop Manager</em>. Todos os direitos reservados.</p>
+</div>
 {% endblock %}
