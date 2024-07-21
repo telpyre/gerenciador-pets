@@ -42,6 +42,20 @@ class PetForm(BootstrapModelForm):
     class Meta:
         model = Animal
         fields = ['nome', 'idade', 'especie', 'raca', 'cor', 'foto_pet']
+        labels = {
+            'nome': 'Nome',
+            'idade': 'Idade',
+            'especie': 'Espécie',
+            'raca': 'Raça',
+            'cor': 'Cor',
+            'foto_pet': 'Foto',
+        }
+        widgets = {
+            'especie': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Escolha a espécie do animal',
+            }),
+        }
 
 
 class LoginForm(forms.Form):
@@ -59,32 +73,43 @@ class LoginForm(forms.Form):
 
         if email and password:
             try:
-                print(f'email: {email}')
-                print(f'password: {password}')
                 usuario = authenticate(username=email, password=password)
-                print(f'usuario:{usuario}')
-                print(f'email: {email}')
-                print(f'password: {password}')
                 if usuario is None:
-                    raise forms.ValidationError('Senha incorretaaa.')
+                    raise forms.ValidationError('Senha incorreta.')
             except Usuario.DoesNotExist:
                 raise forms.ValidationError('Email não encontrado.')
 
         return cleaned_data
 
 
-class AtualizarDadosForm(forms.Form):
-    old_password = forms.CharField(widget=forms.PasswordInput(attrs={
+class AtualizarDadosForm(forms.ModelForm):
+    old_password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={
         'class': 'form-control', 'placeholder': 'Sua senha'
     }))
 
-    new_password = forms.CharField(widget=forms.PasswordInput(attrs={
+    new_password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={
         'class': 'form-control', 'placeholder': 'Nova senha'
     }))
 
-    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
+    confirm_password = forms.CharField(required=False, widget=forms.PasswordInput(attrs={
         'class': 'form-control', 'placeholder': 'Confirmar nova senha'
     }))
+
+    foto_perfil = forms.ImageField(required=False, widget=forms.FileInput(attrs={
+        'class': 'form-control',
+        'accept': 'image/*'
+    }))
+
+    class Meta:
+        model = Usuario
+        fields = ['nome', 'email', 'idade', 'telefone', 'foto_perfil', 'old_password', 'new_password',
+                  'confirm_password']
+        widgets = {
+            'nome':  forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'idade': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Idade'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control', 'data-mask': '(00)00000-0000'}),
+        }
 
     def clean(self):
         cleaned_data = super().clean()

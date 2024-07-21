@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
 from .models import Usuario, Animal
 from .forms import UsuarioForm, PetForm, LoginForm, AtualizarDadosForm
 from .management.decorators.decorators_custom import login_required_custom, admin_required_custom, \
@@ -107,8 +108,10 @@ def listar_usuarios(request):
         except ValueError:
             pass  # Se a idade não for um número, ignorar esse filtro
 
-    usuarios = usuarios.filter(is_admin=False)
-    return render(request, 'usuarios/listar_usuarios.html', {'usuarios': usuarios})
+    usuarios = usuarios.filter(is_admin=False).annotate(num_pets=Count('animais'))
+    pets = Animal.objects.all()
+    print(f'pets: {pets}')
+    return render(request, 'usuarios/listar_usuarios.html', {'usuarios': usuarios, 'pets': pets})
 
 
 @admin_required_custom
@@ -148,7 +151,6 @@ def excluir_usuario(request, usuario_id):
 
 @admin_required_custom
 def pet_status_recebido(request, animal_id):
-    print(f'animal_id: {animal_id}')
     try:
         pet = get_object_or_404(Animal, id=animal_id)
         if not pet.status:
@@ -184,28 +186,19 @@ def pet_status_devolvido(request, animal_id):
 def listar_pets(request):
     query = request.GET.get('q')
     status = request.GET.get('status')
-    idade = request.GET.get('idade')
     dono = request.GET.get('dono')
     pets = Animal.objects.all()
     if query:
         pets = pets.filter(Q(nome__icontains=query) |
                            Q(especie__icontains=query) |
                            Q(raca__icontains=query) |
+                           Q(idade__icontains=query) |
                            Q(cor__icontains=query)
                            )
 
     if status:
         esta_conosco = True if status == 'true' else False
         pets = pets.filter(status=esta_conosco)
-
-    if idade:
-        try:
-            idade = int(idade)
-            faixa_min = idade - 3
-            faixa_max = idade + 3
-            pets = pets.filter(idade__range=(faixa_min, faixa_max))
-        except ValueError:
-            pass  # Se a idade nao for um número, ignorar esse filtro
 
     if dono:
         pets = pets.filter(usuario__nome__icontains=dono)
@@ -271,12 +264,9 @@ def cadastrar_usuario(request):
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        print(f'form na view: {form}')
         if form.is_valid():
             email = form.cleaned_data['email']
-            print(f'email na view: {email}')
             password = form.cleaned_data['password']
-            print(f'password na view: {password}')
             try:
                 usuario = authenticate(request, username=email, password=password)
                 if usuario is not None:
@@ -298,26 +288,40 @@ def login(request):
 
 @login_required_custom
 def atualizar_dados(request):
-    usuario = Usuario.objects.only('email').get(id=request.session.get('usuario_id'))  # o .only() só trás o campo em ()
+    usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
+    print(f'usuario:{usuario}')
     if request.method == 'POST':
-        form = AtualizarDadosForm(request.POST)
+        form = AtualizarDadosForm(request.POST, request.FILES, instance=usuario)
         if form.is_valid():
-            old_password = form.cleaned_data['old_password']
-            new_password = form.cleaned_data['new_password']
-            confirm_password = form.cleaned_data['confirm_password']
+            usuario = form.save(commit=False)
 
-            if usuario.check_password(old_password):
-                if new_password == confirm_password:
-                    usuario.set_password(new_password)
-                    usuario.save()
-                    messages.success(request, f'Dados atualizado com sucesso!')
-                    return redirect('dashboard')
+            test_password = form.cleaned_data['old_password']
+            if test_password:
+                old_password = form.cleaned_data['old_password']
+                new_password = form.cleaned_data['new_password']
+                confirm_password = form.cleaned_data['confirm_password']
+                if new_password != '' and confirm_password != '':
+                    if usuario.check_password(old_password):
+                        if new_password == confirm_password:
+                            usuario.set_password(new_password)
+                        else:
+                            form.add_error(None, 'As novas senhas não coincidem')
+                            messages.error(request, 'As novas senhas não coincidem')
+                            return redirect('atualizar_dados')
+                    else:
+                        form.add_error('old_password', 'A senha antiga está incorreta')
+                        messages.error(request, 'A senha antiga está incorreta')
+                        return redirect('atualizar_dados')
                 else:
-                    form.add_error(None, 'As novas senhas não coincidem')
-            else:
-                form.add_error('old_password', 'A senha antiga está incorreta')
+                    form.add_error(None, 'Preencha todos os campos para atualizar a senha.')
+                    messages.error(request, 'Preencha todos os campos para atualizar a senha.')
+                    return redirect('atualizar_dados')
+
+            usuario.save()
+            messages.success(request, f'Dados atualizado com sucesso!')
+            return redirect('dashboard')
     else:
-        form = AtualizarDadosForm()
+        form = AtualizarDadosForm(instance=usuario)
     return render(request, 'usuarios/editar_info.html', {'form': form, 'usuario': usuario})
 
 

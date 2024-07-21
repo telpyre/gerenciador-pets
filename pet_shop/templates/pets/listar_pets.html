@@ -6,19 +6,19 @@ Listar Pets{% endblock %}
 {% block content %}
 <div class="mt-5">
 	<h1 class="display-4">Gestão de Pets</h1>
-	<div class="mb-3">
+	<div class="mb-3 d-flex">
 		<a href="{% url 'dashboard' %}" class="btn btn-primary mr-2">Dashboard</a>
-		<a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+		<a href="{% url 'logout' %}" class="btn btn-secondary ms-auto">Logout</a>
 	</div>
 	<form class="mb-3">
-		<input type="text" name="q" placeholder="Buscar por nome, espécie, raça ou cor" class="form-control mb-2">
-		<input type="text" name="dono" placeholder="Buscar por dono" class="form-control mb-2">
-		<input type="number" name="idade" min="0" max="200" placeholder="Buscar por idade aproximada"
+		<input type="text" name="q" placeholder="Buscar por nome, espécie, raça, idade ou cor"
 		       class="form-control mb-2">
+		<input type="text" name="dono" placeholder="Buscar por dono" class="form-control mb-2">
+		<h5>Status:</h5>
 		<select name="status" class="form-control mb-2">
 			<option value="">Todos</option>
-			<option value="true">Conosco</option>
-			<option value="false">Com Tutor</option>
+			<option value="true">Na loja</option>
+			<option value="false">Com o Tutor</option>
 		</select>
 		<button type="submit" class="btn btn-primary">Buscar</button>
 	</form>
@@ -29,13 +29,20 @@ Listar Pets{% endblock %}
 		<div>
 			<h5 class="mb-1"><strong>{{ pet.nome }}</strong> - {{ pet.especie }}</h5>
 		</div>
-		<div class="mb-3 mt-2">
+		<div class="mb-3 mt-2 d-flex">
 			{% if not pet.status %}
-			<a href="{% url 'status_pet_recebido' pet.id %}" class="btn btn-secondary  mr-2">Receber Pet</a>
+			<a href="{% url 'status_pet_recebido' pet.id %}" class="btn btn-secondary  mr-2">Com o dono</a>
 			{% else %}
-			<a href="{% url 'status_pet_devolvido' pet.id %}" class="btn btn-success  mr-2">Devolver Pet</a>
+			<a href="{% url 'status_pet_devolvido' pet.id %}" class="btn btn-success  mr-2">Na loja</a>
 			{% endif %}
-			<a href="{% url 'notificar_usuario' pet.id %}" class="btn btn-primary  mr-auto">Notificar o dono</a>
+			<i class="bi bi-envelope ms-auto"></i>
+			<a href="{% url 'notificar_usuario' pet.id %}" class="btn btn-primary  ms-auto">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+				     class="bi bi-envelope" viewBox="0 0 16 16">
+					<path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+				</svg>
+				Notificar o dono
+			</a>
 		</div>
 	</li>
 	{% endfor %}

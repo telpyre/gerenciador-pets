@@ -21,10 +21,20 @@ Editar informações de Usuário
         </div>
         {% endfor %}
         <div class="mt-3 button-group">
-            <button type="submit" class="btn btn-primary ">Mudar Senha</button>
+            <button type="submit" class="btn btn-success ">Salvar</button>
             <a href="{% url 'dashboard' %}" class="btn btn-secondary ">Voltar</a>
         </div>
     </form>
 </div>
+
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('[data-mask="(00)00000-0000"]').mask('(00)00000-0000');
+    });
+</script>
 
 {% endblock %}

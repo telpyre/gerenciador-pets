@@ -78,14 +78,23 @@ class Usuario(AbstractBaseUser):
 
 
 class Animal(models.Model):
+    escolha_especies = [
+        ('Cachorro', 'Cachorro'),
+        ('Gato', 'Gato'),
+        ('Pássaro', 'Pássaro'),
+        ('Tartaruga', 'Tartaruga'),
+        ('Outro', 'Outro'),
+        # expansível
+    ]
+
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='animais')
     nome = models.CharField(max_length=100)
     idade = models.PositiveIntegerField(blank=True, null=True)
-    especie = models.CharField(max_length=100, blank=False, null=True)
+    especie = models.CharField(max_length=100, choices=escolha_especies)
     raca = models.CharField(max_length=100, blank=True, null=True)
     cor = models.CharField(max_length=100, blank=True, null=True)
     foto_pet = models.TextField(blank=True, null=True)
-    status = models.BooleanField(default=False)  # Falso = com o dono/ True = com o pet-shop
+    status = models.BooleanField(default=False)  # Falso = com o dono/ True = com a loja
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
