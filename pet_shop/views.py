@@ -16,15 +16,16 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.db.models import Count, Q
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib import messages
+from django.conf import settings
 
 
 # ===/views utilitárias/===
 def enviar_email_ativacao(request, usuario):
     current_site = get_current_site(request)
     mail_subject = 'Ative sua conta'
-    from_email = 'no-reply@petshopmanager.com'
+    # from_email = 'no-reply@petshopmanager.com'
     recipient_list = [usuario.email]
     message = render_to_string('usuarios/email_ativacao.html', {
         'usuario': usuario,
@@ -32,7 +33,7 @@ def enviar_email_ativacao(request, usuario):
         'uid': urlsafe_base64_encode(force_bytes(usuario.id)),
         'token': default_token_generator.make_token(usuario),
     })
-    send_mail(mail_subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
+    send_mail(mail_subject, '', settings.DEFAULT_FROM_EMAIL, recipient_list, fail_silently=False, html_message=message)
     usuario.save()
 
 
@@ -93,7 +94,10 @@ def listar_usuarios(request):
     idade = request.GET.get('idade')
     usuarios = Usuario.objects.all()
     if query:
-        usuarios = usuarios.filter(Q(nome__icontains=query) | Q(email__icontains=query))
+        usuarios = usuarios.filter(Q(nome__icontains=query)
+                                   | Q(email__icontains=query)
+                                   | Q(telefone__icontains=query)
+                                   )
 
     if status:
         is_active = True if status == 'ativo' else False
@@ -110,7 +114,6 @@ def listar_usuarios(request):
 
     usuarios = usuarios.filter(is_admin=False).annotate(num_pets=Count('animais'))
     pets = Animal.objects.all()
-    print(f'pets: {pets}')
     return render(request, 'usuarios/listar_usuarios.html', {'usuarios': usuarios, 'pets': pets})
 
 
@@ -197,8 +200,8 @@ def listar_pets(request):
                            )
 
     if status:
-        esta_conosco = True if status == 'true' else False
-        pets = pets.filter(status=esta_conosco)
+        na_loja = True if status == 'true' else False
+        pets = pets.filter(status=na_loja)
 
     if dono:
         pets = pets.filter(usuario__nome__icontains=dono)
@@ -289,7 +292,6 @@ def login(request):
 @login_required_custom
 def atualizar_dados(request):
     usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
-    print(f'usuario:{usuario}')
     if request.method == 'POST':
         form = AtualizarDadosForm(request.POST, request.FILES, instance=usuario)
         if form.is_valid():
@@ -304,6 +306,8 @@ def atualizar_dados(request):
                     if usuario.check_password(old_password):
                         if new_password == confirm_password:
                             usuario.set_password(new_password)
+                            usuario.save()
+                            update_session_auth_hash(request, usuario)
                         else:
                             form.add_error(None, 'As novas senhas não coincidem')
                             messages.error(request, 'As novas senhas não coincidem')

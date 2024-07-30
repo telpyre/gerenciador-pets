@@ -48,14 +48,14 @@ Dashboard
 			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable container" role="document">
 				<div class="row align-items-start bg-white">
 					<div class="modal-header">
-						<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
+						<h5 class="modal-title" aria-labelledby="modalLabel{{ pet.id }}">{{ pet.nome}}</h5>
 						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
+							<span aria-hidden="true">&times;                                          </span>
 						</button>
 					</div>
 					<div class="col mt-3">
-						<p>Dono: {{ pet.usuario }}</p>
-						<p>Espécie: {{ pet.especie }}</p>
+						<p>Dono: {{pet.usuario}}</p>
+						<p>Espécie: {{pet.especie}}</p>
 						{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
 						<p>{{ pet.idade }} anos</p>
 						{% if pet.cor %}<p>Cor: {{ pet.cor }}</p>{% endif %}
@@ -105,37 +105,35 @@ Dashboard
 	</div>
 	<!-- modal -->
 	<div class="modal fade" id="modal{{ pet.id }}" tabindex="-1" role="dialog"
-		     aria-labelledby="modalLabel{{ pet.id }}" aria-hidden="true">
-			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable container" role="document">
-				<div class="row align-items-start bg-white">
-					<div class="modal-header">
-						<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
-						<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="col mt-3">
-						<p>Dono: {{ pet.usuario }}</p>
-						<p>Espécie: {{ pet.especie }}</p>
-						{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
-						<p>{{ pet.idade }} anos</p>
-						{% if pet.cor %}<p>Cor: {{ pet.cor }}</p>{% endif %}
-					</div>
-					{% if pet.foto_pet %}
-					<div class="col">
-						<img src="data:image/png;base64, {{ pet.foto_pet }}" class="img-fluid"
-						     alt="foto de {{ pet.especie }}">
-					</div>
-					{% endif %}
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-					</div>
+	     aria-labelledby="modalLabel{{ pet.id }}" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable container" role="document">
+			<div class="row align-items-start bg-white">
+				<div class="modal-header">
+					<h5 class="modal-title" aria-labelledby="modalLabel{{ contato.id }}">{{ pet.nome}}</h5>
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="col mt-3">
+					<p>Dono: {{ pet.usuario }}</p>
+					<p>Espécie: {{pet.especie}}</p>
+					{% if pet.raca %}<p>Raça: {{ pet.raca }}</p>{% endif %}
+					<p>{{ pet.idade }} anos</p>
+					{% if pet.cor %}<p>Cor: {{ pet.cor }}</p>{% endif %}
+				</div>
+				{% if pet.foto_pet %}
+				<div class="col">
+					<img src="data:image/png;base64, {{ pet.foto_pet }}" class="img-fluid"
+					     alt="foto de {{ pet.especie }}">
+				</div>
+				{% endif %}
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
 				</div>
 			</div>
 		</div>
 	</div>
-	{% endfor %}
 </div>
+{% endfor %}
 {% endif %}
-
 {% endblock %}
