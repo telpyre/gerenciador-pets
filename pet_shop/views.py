@@ -80,6 +80,7 @@ def enviar_email_tutor(request, animal_id):
         'token': default_token_generator.make_token(usuario),
     })
     send_mail(mail_subject, '', from_email, recipient_list, fail_silently=False, html_message=message)
+    usuario.is_notificado = True
     usuario.save()
     messages.success(request, f'{usuario.nome} foi notificado com sucesso')
     return redirect('listar_pets')
@@ -172,9 +173,12 @@ def pet_status_recebido(request, animal_id):
 def pet_status_devolvido(request, animal_id):
     try:
         pet = get_object_or_404(Animal, id=animal_id)
+        usuario = get_object_or_404(Usuario, id=pet.usuario)
         if pet.status:
             pet.status = False
             pet.save()
+            usuario.is_notificado = False
+            usuario.save()
             messages.success(request, f'Pet \'{pet.nome}\' foi devolvido ao dono.')
             return redirect('listar_pets')
         else:
@@ -246,8 +250,8 @@ def cadastrar_usuario(request):
         form = UsuarioForm(request.POST)
         if form.is_valid():
             usuario = form.save(commit=False)
-            if 'foto' in request.FILES:
-                imagem = Image.open(request.FILES['foto'])
+            if 'foto_perfil' in request.FILES:
+                imagem = Image.open(request.FILES['foto_perfil'])
                 imagem = imagem.resize((300, 300), Image.LANCZOS)
                 buffered = io.BytesIO()
                 imagem.save(buffered, format='PNG')
