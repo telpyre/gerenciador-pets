@@ -43,6 +43,7 @@ class Usuario(AbstractBaseUser):
     foto_perfil = models.TextField(blank=True, null=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    is_notificado = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
